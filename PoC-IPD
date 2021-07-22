@@ -1,0 +1,28 @@
+
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-bright')
+%matplotlib inline
+
+os.chdir(r'C:\Users\spoorti.gandhad\Downloads\AI-ML\RecommenderSystem')
+############### Read the CSV File ##############
+BC_SC_Merge = pd.read_csv('Asset_Product.csv')
+feature_columns=['PRODUCT_NAME', 'count', 'BUNDLE_COMPONENT_COUNT']
+BC_SC_Merge = BC_SC_Merge[feature_columns]
+BC_SC_Merge.head(40)
+
+############ Calculate Max and Mean ############
+BC_SC_Merge = BC_SC_Merge.fillna(0)
+asset_max = BC_SC_Merge['count'].max().astype(int)
+bundle_comp_max = BC_SC_Merge['BUNDLE_COMPONENT_COUNT'].max().astype(int)
+asset_mean = (BC_SC_Merge['count'].mean()).astype(int)
+bundle_comp_mean = BC_SC_Merge['BUNDLE_COMPONENT_COUNT'].mean().astype(int)
+bundle_comp_max_threshold = ((bundle_comp_mean+bundle_comp_max)/2).astype(int)
+
+phase_min = BC_SC_Merge[(BC_SC_Merge['count'].between(asset_mean, asset_max)) & (BC_SC_Merge['BUNDLE_COMPONENT_COUNT'].between(0,bundle_comp_mean))]
+phase_max = BC_SC_Merge[((BC_SC_Merge['count'].between(asset_mean/2, asset_mean)) & (BC_SC_Merge['BUNDLE_COMPONENT_COUNT'].between(0, bundle_comp_mean)))]
+phase_one = pd.concat([phase_min, phase_max],ignore_index=True)
+phase_one.head(40)
+
+phase_one.plot(x='PRODUCT_NAME', y='count', kind='bar', color='green')
